@@ -1,0 +1,159 @@
+.addO{
+  width:100%;
+  padding-left: 2%;
+  height: 20px;
+  margin: 10px;
+  color: #000;
+  font-size: 20px;
+  cursor: pointer;
+  &_text{
+    padding-left: 5px;
+    line-height: 20px;
+  }
+}
+.addO:hover{
+  color:rgb(19, 153, 231);
+}
+.addODis{
+  padding-left: 2%;
+  width:100%;
+  height: 20px;
+  margin: 10px;
+  color: #bfbfbf;
+  font-size: 20px;
+  &_text{
+    padding-left: 5px;
+    line-height: 20px;
+  }
+}
+
+.myOkrs{
+  min-height: calc(100vh - 64px);
+  height: fit-content;
+}
+
+.okrItem{
+  @mixin container {
+    width:96%;
+    margin: 20px 2%;
+    padding: 15px;
+    background: #fff;
+    position: relative;
+  }
+  &_container{
+    @include container()
+  }
+  &_containerEdit{
+    @include container();
+    border: solid 1px #1890ff;
+    border-radius: 5px;
+  }
+  @mixin st {
+    font-size:14px;
+    color:#6b6a6a;
+    text-align: center;
+    width:50px;
+    height: 14px;
+    line-height: 14px;
+    position: absolute;
+    top:22px
+  }
+  &_st1{
+    @include st();
+    right: 91px
+  }
+  &_st2{
+    @include st();
+    right: 30px
+  }
+  &_oIndex{
+    width: fit-content;
+    min-width: 40px;
+    height: 25px;
+    line-height: 25px;
+    font-weight: 600;
+    color:white;
+    font-size: 20px;
+    background: #1890ff;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  &_oNameContainer{
+    height: 30px;
+    border-bottom: 1.5px solid #bfbfbf;
+    &_input{
+      width:89%
+    }
+  }
+  &_remove{
+    position: absolute;
+    right: 0;
+    margin:auto;
+    top:0;
+    bottom:0;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    &_icon{
+      font-size: 16px;
+      color: #bfbfbf;
+      vertical-align: top;
+    }
+  }
+  &_remove:hover{
+    transform:scale(1.2)
+  }
+  &_addKrCtn{
+    padding-bottom: 10px;
+  }
+  &_addKr{
+    color: #000;
+    font-size: 14px;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+  &_addKr:hover{
+    color: rgb(19, 153, 231);
+  }
+  &_opsCtn{
+    border-top: 1.5px solid #bfbfbf;
+    padding-top: 15px;
+  }
+}
+
+.krItem{
+  &_remove{
+    position: absolute;
+    right: 0;
+    margin:auto;
+    top:0;
+    bottom:0;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    &_icon{
+      font-size: 16px;
+      color: #bfbfbf;
+      vertical-align: top;
+    }
+  }
+  &_remove:hover{
+    transform:scale(1.2)
+  }
+  &_weightCtn{
+    position: relative;
+    top: -3px;
+    width:75px;
+    &_input{
+      background: #dadada8c;
+      width: 75px;
+      color: #6b6a6a;
+    }
+    &_inputDis{
+      background: #dadada8c;
+      width: 55px;
+      color: #6b6a6a !important;
+    }
+  }
+}

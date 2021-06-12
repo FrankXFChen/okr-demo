@@ -1,5 +1,5 @@
 import React, { useState, useReducer } from 'react';
-import { Row, Col, Input, Button } from 'antd';
+import { Row, Col, Input, Button, Progress } from 'antd';
 import * as style from './index.module.scss';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import DragableKRs from './dragableKRs';
@@ -52,8 +52,38 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
 
   return(
     <div className={!!inEdit?style.okrItem_containerEdit:style.okrItem_container}>
-      <div className={style.okrItem_st1}>权重</div>
-      {!inEdit && <div className={style.okrItem_st2}>进度</div>}
+      <Row className={style.okrItem_addAlign}>
+        <Col span={1}></Col>
+        <Col span={2}>
+          <div className={style.okrItem_addAlign_btn}>
+            <span><PlusOutlined /></span>
+            <span>添加对齐</span>
+          </div>
+        </Col>
+      </Row>
+      <div className={style.okrItem_keyCtn}>
+        <Row className={style.okrItem_keyCtn_keyRow}>
+          <Col span={8}>{!inEdit?'进度':''}</Col>
+          <Col span={8}>{!inEdit?'分数':''}</Col>
+          <Col span={8}>权重</Col>
+        </Row>
+        <Row className={style.okrItem_keyCtn_valueRow}>
+          <Col span={8}>
+            {!inEdit?
+              <Progress type="circle" trailColor='#dadada8c' percent={0} width={30} strokeWidth={10}/>:''
+            }
+          </Col>
+          <Col span={8}>
+            {!inEdit?
+              0.0:''
+            }
+          </Col>
+          <Col span={8}>100%</Col>
+        </Row>
+      </div>
+      {/* {!inEdit && <div className={style.okrItem_st1}>进度</div>}
+      {!inEdit && <div className={style.okrItem_st2}>分数</div>}
+      <div className={style.okrItem_st3}>权重</div> */}
       <Row style={{position:'relative'}}>
         <Col span={1} className={style.okrItem_oIndex}>{`O${index+1}`}</Col>
         <Col span={23} className={style.okrItem_oNameContainer}>

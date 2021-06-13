@@ -87,7 +87,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       <Row style={{position:'relative'}}>
         <Col span={1} className={style.okrItem_oIndex}>{`O${index+1}`}</Col>
         <Col span={23} className={style.okrItem_oNameContainer}>
-          <Input style={{color:'black'}} disabled={!inEdit} className={style.okrItem_oNameContainer_input} bordered={false} 
+          <Input style={{color:'black'}} readOnly={!inEdit} className={style.okrItem_oNameContainer_input} bordered={false} 
           placeholder="请输入"  value={oname} onChange={e=>setOname(e.target.value)}/>
         </Col>
         {/* <div className={style.okrItem_remove} onClick={()=>{dispatch({type:'remove', payload:{index}});quitEdit()}}>

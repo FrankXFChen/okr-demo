@@ -39,14 +39,15 @@
     padding: 5px 15px 15px;
     background: #fff;
     position: relative;
+    border-radius: 5px;
   }
   &_container{
-    @include container()
+    @include container();
+    border: solid 1px transparent;
   }
   &_containerEdit{
     @include container();
     border: solid 1px #1890ff;
-    border-radius: 5px;
   }
   @mixin st {
     font-size:12px;
@@ -161,6 +162,16 @@
 }
 
 .krItem{
+  &_normalCtn{
+    user-select: none;
+    padding-top: 8px;
+    background: rgb(255, 255, 255);
+    opacity: 1;
+    border-top: none;
+    border-right: none;
+    border-bottom: 1.5px solid rgb(191, 191, 191);
+    text-align: center;
+  }
   &_remove{
     position: absolute;
     right: 0;

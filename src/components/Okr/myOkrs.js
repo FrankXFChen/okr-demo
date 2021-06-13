@@ -3,13 +3,16 @@ import { PlusCircleOutlined} from '@ant-design/icons';
 import * as style from './index.module.scss';
 import OkrItem from './okrItem';
 
+
+//kr status, 1 normal, 2 in Risk, 3 delay
 const mockOkr = [{
   id:'000001',
   name:'第一个OKR的O',
   createdTime:'2021-05-21',
   krs:[
-    {id:'kr_1', content:'写第一个KR',  weight:60, progress:100},
-    {id:'kr_2', content:'写第二个KR',  weight:40, progress:10}
+    {id:'kr_1', content:'写第一个KR',  weight:30, progress:100, status:3},
+    {id:'kr_2', content:'写第二个KR',  weight:30, progress:50, status:2},
+    {id:'kr_3', content:'写第三个KR',  weight:40, progress:20, status:1}
   ]
 }]
 const orkTemp = {

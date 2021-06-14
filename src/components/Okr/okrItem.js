@@ -1,8 +1,48 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 import { Row, Col, Input, Button, Progress } from 'antd';
 import * as style from './index.module.scss';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import DragableKRs from './dragableKRs';
+import { Fragment } from 'react';
+
+const testDuiqi = [
+  {
+    name: '张三',
+    dept: '研发部',
+    userId: 'user001',
+    okrs: [{
+      id: '0000011',
+      name: '张三第一个OKR，长字符串测试，长字符串测试，长字符串测试，长字符串测试',
+      createdTime: '2021-05-21',
+    },{
+      id: '0000012',
+      name: '张三第二个OKR',
+      createdTime: '2021-05-22',
+    },{
+      id: '0000013',
+      name: '张三第三个OKR',
+      createdTime: '2021-05-24',
+    }]
+  },
+  {
+    name: '李四',
+    dept: '研发部',
+    userId: 'user002',
+    okrs: [{
+      id: '0000021',
+      name: '李四第一个OKR',
+      createdTime: '2021-05-21',
+    },{
+      id: '0000022',
+      name: '李四第二个OKR',
+      createdTime: '2021-05-22',
+    },{
+      id: '0000023',
+      name: '李四第三个OKR',
+      createdTime: '2021-05-24',
+    }]
+  }
+]
 
 const reducer = (state, action)=>{
   switch(action.type){
@@ -44,21 +84,48 @@ const reducer = (state, action)=>{
       })
       return temp
     }
+    // case 'logProgress':{
+    //   let { status, progress, index} = action.payload;
+    //   let temp = [...state];
+    //   temp[index].status = status;
+    //   temp[index].progress = progress;
+    //   return temp;
+    // }
   }
 }
+
 export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inEditHigh})=>{
   const [oname, setOname] = useState(data.name);
   const [krs, dispatchKr] = useReducer(reducer, data.krs);
+  const [overallStatus, setOverallStatus] = useState({status:1, progress:0});
+  const [showMateOkrModal, setShowMateOkrModal] = useState(false)
+  
+  useEffect(()=>{
+    if(!!data.krs && data.krs.length>0){
+      let status=1;
+      let progress=0
+      for(let obj of data.krs){
+        if(obj.status>status){
+          status = obj.status
+        }
+        progress = progress + (obj.weight/100)*obj.progress;
+      }
+      setOverallStatus({status:status, progress: Number(progress.toFixed(1))})
+    }
+  },[data.krs])
 
   return(
     <div className={!!inEdit?style.okrItem_containerEdit:style.okrItem_container}>
       <Row className={style.okrItem_addAlign}>
         <Col span={1}></Col>
-        <Col span={2}>
-          <div className={style.okrItem_addAlign_btn}>
+        <Col span={2} style={{position:'relative'}}>
+          <div className={!!showMateOkrModal?style.okrItem_addAlign_btnAct:style.okrItem_addAlign_btn} 
+          onClick={()=>setShowMateOkrModal(true)}>
             <span><PlusOutlined /></span>
             <span>添加对齐</span>
           </div>
+          {!!showMateOkrModal &&
+          <MateOkrModal onClose={()=>setShowMateOkrModal(false)}/>}
         </Col>
       </Row>
       <div className={style.okrItem_keyCtn}>
@@ -70,7 +137,10 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
         <Row className={style.okrItem_keyCtn_valueRow}>
           <Col span={8}>
             {!inEdit?
-              <Progress type="circle" trailColor='#dadada8c' percent={0} width={30} strokeWidth={10}/>:''
+              <Progress type="circle" trailColor='#dadada8c' format={(val)=>val}
+              percent={overallStatus.progress} 
+              strokeColor={overallStatus.status==3?'red':overallStatus.status==2?'orange':''} 
+              width={30} strokeWidth={20}/>:''
             }
           </Col>
           <Col span={8}>
@@ -81,9 +151,6 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
           <Col span={8}>100%</Col>
         </Row>
       </div>
-      {/* {!inEdit && <div className={style.okrItem_st1}>进度</div>}
-      {!inEdit && <div className={style.okrItem_st2}>分数</div>}
-      <div className={style.okrItem_st3}>权重</div> */}
       <Row style={{position:'relative'}}>
         <Col span={1} className={style.okrItem_oIndex}>{`O${index+1}`}</Col>
         <Col span={23} className={style.okrItem_oNameContainer}>
@@ -97,7 +164,8 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       <Row>
         <Col span={1}></Col>
         <Col span={23}>
-          <DragableKRs inEdit={inEdit} data={krs} dispatchKr={(obj)=>dispatchKr(obj)}/>
+          <DragableKRs dispatch={obj=>dispatch({type:'logProgress',payload:{index:index,...obj}})} 
+          inEdit={inEdit} data={krs} dispatchKr={(obj)=>dispatchKr(obj)}/>
         </Col>
       </Row>
       {!!inEdit && <Row className={style.okrItem_addKrCtn}> 
@@ -140,5 +208,43 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       </Row>
       }
     </div>
+  )
+})
+
+const MateOkrModal = React.memo(({onClose})=>{
+  const [searchVal, setSearchVal] = useState('');
+  return(
+    <div className={style.okrItem_addAlign_modal}>
+      <Input bordered={false} placeholder='输入姓名搜索' className={style.okrItem_addAlign_modal_input}
+        value={searchVal} onChange={e=>setSearchVal(e.target.value)}/>
+      {testDuiqi.map((obj)=>{
+        return(
+          <Fragment key={obj.userId}>
+            <MateOkrItem data={obj}/>
+          </Fragment>
+        )
+      })}
+    </div>
+  )
+})
+
+const MateOkrItem = React.memo(({data})=>{
+  return(
+    <Fragment>
+      <Row className={style.okrItem_addAlign_modal_nameRow}>
+        <Col span={2}></Col>
+        <Col span={4}>{data.name}</Col>
+        <Col span={5}>{data.dept}</Col>
+      </Row>
+      {data.okrs.map((obj, index)=>{
+        return(
+          <Row className={style.okrItem_addAlign_modal_okrRow}>
+            <Col span={2}></Col>
+            <Col span={2} className={style.okrItem_addAlign_modal_oIndex}>{`O${index+1}`}</Col>
+            <Col span={18} className={style.okrItem_addAlign_modal_content}>{obj.name}</Col>
+          </Row>
+        )
+      })}
+    </Fragment>
   )
 })

@@ -1,6 +1,6 @@
-import React, { Component, useCallback, Fragment } from "react";
+import React, { Component, useCallback, Fragment, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import {Input, Row, Col, InputNumber, Progress} from 'antd';
+import {Input, Row, Col, InputNumber, Progress, Button} from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import * as style from './index.module.scss';
  
@@ -39,7 +39,7 @@ const getListStyle = () => ({
   width: '100%'
 });
  
-export default React.memo(({data, inEdit, dispatchKr})=>{
+export default React.memo(({dispatch, data, inEdit, dispatchKr})=>{
   //const [innerKrs, setInnerKrs] = useState(data);
 
   const onDragEnd = useCallback((result) => {
@@ -129,7 +129,8 @@ export default React.memo(({data, inEdit, dispatchKr})=>{
                     <Col span={8}>
                       {/* <Progress type="circle" trailColor='#dadada8c' status={item.status==3?"exception":'normal'} format={() => }
                         percent={item.progress} width={30} strokeWidth={10} /> */}
-                        <MyProgress status={item.status} value={item.progress}/>
+                        <MyProgress dispatchKrStatus={(obj)=>dispatch({krPayload:{indexKr:index, ...obj}})}
+                         status={item.status} value={item.progress} krId={item.id}/>
                     </Col>
                     <Col span={8}>10.0</Col>
                     <Col span={8}>
@@ -148,9 +149,10 @@ export default React.memo(({data, inEdit, dispatchKr})=>{
   );
 
 })
-
-const MyProgress = React.memo(({status, value})=>{
-  let myFormat = (val)=>val+`%`;
+const statusMap = {1:'正常', 2:'有风险', 3:'已延期'};
+const MyProgress = React.memo(({dispatchKrStatus, status, value, krId})=>{
+  //let myFormat = (val)=>val+`%`;
+  let myFormat = ()=>'';
   let myColor = '';
   if(value===100){
     if(status===3){
@@ -165,10 +167,93 @@ const MyProgress = React.memo(({status, value})=>{
       myColor='orange'
     }
   }
+  const [showDetail, setShowDetail] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   
   return(
-    <Progress type="circle" trailColor='#dadada8c'   strokeColor={myColor} format={myFormat}
-      percent={value} width={30} strokeWidth={10} />
+    <Fragment>
+    <div className={style.myProgress} onMouseEnter={()=>setShowDetail(true)} onMouseLeave={()=>setShowDetail(false)}>
+      <Progress type="circle" trailColor='#dadada8c'   strokeColor={myColor} format={myFormat}
+      percent={value} width={30} strokeWidth={20} />
+      {!!showDetail && !showUpdateModal && <div className={style.myProgress_detailCtn}>
+        <div>
+          <span>当前状态：</span>
+          <span>{statusMap[status]}</span>
+        </div>
+        <div>
+          <span>当前进度：</span>
+          <span>{`${value}%`}</span>
+        </div>
+        <div style={{textAlign:'center'}}>
+          <Button type='primary' size='small' className={style.myProgress_detailCtn_btn}
+            onClick={()=>{setShowUpdateModal(true);setShowDetail(false)}}>更新</Button>
+        </div>
+      </div>}
+    </div>
+    {!!showUpdateModal &&
+      <ProgressUpdateModal dispatchKrStatus={dispatchKrStatus} status={status} value={value} krId={krId} onClose={()=>setShowUpdateModal(false)}/>
+    }
+    </Fragment>
+  )
+})
+
+const ProgressUpdateModal = React.memo(({dispatchKrStatus, status, value, krId, onClose})=>{
+  const [currentStatus, setCurrentStatus] = useState(status);
+  const [currentPercent, setCurrentPercent] = useState(value);
+  const updateKrStatus = ()=>{
+    onClose();
+    console.log('status:', currentStatus)
+    console.log('value:', currentPercent)
+    dispatchKrStatus({status:currentStatus, progress:currentPercent})
+  }
+  return(
+    <div className={style.myProgress_updateModal}>
+        <div className={style.myProgress_updateModal_title}>状态</div>
+        <MyRadioGroup setValue={setCurrentStatus} value={currentStatus}/>
+        <div className={style.myProgress_updateModal_title}>进度</div>
+        <InputNumber size='small' className={style.myProgress_updateModal_input} defaultValue={currentPercent} min={0} max={100}
+        formatter={value => `${value}%`} parser={value => value.replace('%', '')}
+        onChange={val=>setCurrentPercent(val)}/>   
+        <Row>
+          <Col span={12}>
+            <Button className={style.myProgress_updateModal_btn} size='small' type='primary' onClick={()=>updateKrStatus()}>确定</Button>
+          </Col>
+          <Col span={12}>
+            <Button className={style.myProgress_updateModal_btn} size='small' onClick={onClose}>取消</Button>
+          </Col>
+        </Row>
+    </div>
+  )
+})
+
+const MyRadioGroup = React.memo(({setValue, value})=>{
+  return(
+    <Fragment>
+      <Row>
+        <Col span={4}>
+          <div className={style.myRadioGP_dotCtn1} onClick={()=>setValue(1)}>
+            {value===1&&<div className={style.myRadioGP_dot1}></div>}
+          </div>
+        </Col>
+        <Col span={14}>正常</Col>
+      </Row>
+      <Row>
+        <Col span={4}>
+          <div className={style.myRadioGP_dotCtn2} onClick={()=>setValue(2)}>
+            {value===2&&<div className={style.myRadioGP_dot2}></div>}
+          </div>
+        </Col>
+        <Col span={14}>有风险</Col>
+      </Row>
+      <Row>
+        <Col span={4}>
+          <div className={style.myRadioGP_dotCtn3} onClick={()=>setValue(3)}>
+            {value===3&&<div className={style.myRadioGP_dot3}></div>}
+          </div>
+        </Col>
+        <Col span={14}>已延期</Col>
+      </Row>
+    </Fragment>
   )
 })
  

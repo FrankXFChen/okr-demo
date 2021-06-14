@@ -158,6 +158,54 @@
       padding-left: 10px;
       color:#1399e7
     }
+    &_modal{
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 325px;
+      height: 375px;
+      padding: 5px 0px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: rgb(197, 196, 196) 0 0 1px 1px;
+      z-index: 11;
+      &_input{
+        font-size:12px;
+        width: 90%
+      }
+      &_nameRow{
+        line-height: 30px;
+        width: 100%;
+        height: 30px;
+        font-size: 12px;
+        text-align: left;
+        background: rgba(194, 193, 193, 0.445);
+        margin-bottom: 10px;
+      }
+      &_okrRow{
+        line-height: 16px;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        margin-bottom: 18px;
+      }
+      &_oIndex{
+        width: fit-content;
+        min-width: 20px;
+        height: 16px;
+        line-height: 16px;
+        font-weight: 600;
+        color:white;
+        font-size: 12px;
+        background: #1890ff;
+        letter-spacing: 1px;
+        border-radius: 6px;
+        text-align: center;
+      }
+      &_content{
+        padding-left: 10px;
+      }
+    }
   }
 }
 
@@ -224,5 +272,111 @@
       height: 30px;
       line-height: 30px;
     }
+  }
+}
+
+.myProgress{
+  width: 40px;
+  height: 30px;
+  //background: #0010163f;
+  position: relative;
+  margin:auto;
+  &_detailCtn{
+    font-size: 12px;
+    background: white;
+    text-align: left;
+    border-radius: 5px;
+    box-shadow: rgb(197, 196, 196) 0 0 1px 1px;
+    padding:5px 10px;
+    width: 120px;
+    height: 100px;
+    position: absolute;
+    top:0px;
+    left:38px;
+    z-index: 10;
+    &_btn{
+      text-align: center;
+      cursor: pointer;
+      font-size: 12px;
+      // &:hover{
+      //   color:#1399e7
+      // }
+    }
+  }
+  &_updateModal{
+    width: 140px;
+    height: 225px;
+    padding: 5px 10px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: rgb(197, 196, 196) 0 0 1px 1px;
+    z-index: 11;
+    position: relative;
+    left: 10px;
+    &_title{
+      font-weight: bold;
+      text-align: left;
+    }
+    &_btn{
+      font-size: 12px;
+    }
+    &_input{
+      background: #dadada8c;
+      width: 60px;
+      color: #6b6a6a;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+  }
+}
+
+.myRadioGP{
+  @mixin dotCtn{
+    position: absolute;
+    width:14px;
+    height: 14px;
+    border-radius: 50%;
+    margin:auto;
+    top:0;
+    bottom:0;
+    right: 0;
+    left: 0;
+    cursor: pointer;
+  }
+  @mixin dot{
+    position: absolute;
+    width:10px;
+    height: 10px;
+    border-radius: 50%;
+    margin:auto;
+    top:0;
+    bottom: 0;
+    left:0;
+    right: 0;
+    cursor: pointer;
+  }
+  &_dotCtn1{
+    @include dotCtn;
+    box-shadow:0 0 0 1px #1399e7
+  }
+  &_dot1{
+    @include dot;
+    background: #1399e7
+  }
+  &_dotCtn2{
+    @include dotCtn;
+    box-shadow:0 0 0 1px orange
+  }
+  &_dot2{
+    @include dot;
+    background: orange
+  }
+  &_dotCtn3{
+    @include dotCtn;
+    box-shadow:0 0 0 1px red
+  }
+  &_dot3{
+    @include dot;
+    background: red
   }
 }

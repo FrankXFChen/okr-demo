@@ -10,8 +10,8 @@ const mockOkr = [{
   name:'第一个OKR的O',
   createdTime:'2021-05-21',
   krs:[
-    {id:'kr_1', content:'写第一个KR',  weight:30, progress:100, status:3},
-    {id:'kr_2', content:'写第二个KR',  weight:30, progress:50, status:2},
+    {id:'kr_1', content:'写第一个KR',  weight:30, progress:60, status:2},
+    {id:'kr_2', content:'写第二个KR',  weight:30, progress:50, status:1},
     {id:'kr_3', content:'写第三个KR',  weight:40, progress:20, status:1}
   ]
 }]
@@ -55,6 +55,16 @@ const reducer = (state, action)=>{
       let index = action.payload.index;
       let temp = [...state];
       temp[index].inEdit = true;
+      return temp;
+    }
+    case 'logProgress':{
+      let {indexKr, status, progress } = action.payload.krPayload;
+      let index = action.payload.index;
+      let temp = [...state];
+      let krs = [...temp[index].krs]
+      krs[indexKr].status= status;
+      krs[indexKr].progress = progress;
+      temp[index].krs= krs;
       return temp;
     }
     default: return state;

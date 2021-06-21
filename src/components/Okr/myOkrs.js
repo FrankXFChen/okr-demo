@@ -13,12 +13,15 @@ const mockOkr = [{
     {id:'kr_1', content:'写第一个KR',  weight:30, progress:60, status:2},
     {id:'kr_2', content:'写第二个KR',  weight:30, progress:50, status:1},
     {id:'kr_3', content:'写第三个KR',  weight:40, progress:20, status:1}
-  ]
+  ],
+  alignings:[{name:'王小二', userId:'user007',oName:'王小二的第一个O', oId:'0000071', progress:60, status:1},
+  {name:'张三', userId:'user001',oName:'张三第一个OKR，长字符串测试，长字符串测试，长字符串测试，长字符串测试', oId:'0000011', progress:20, status:2}]
 }]
 const orkTemp = {
   id:'',
   name:'',
   krs:[],
+  alignings:[],
   inEdit: true
 }
 const reducer = (state, action)=>{
@@ -65,6 +68,12 @@ const reducer = (state, action)=>{
       krs[indexKr].status= status;
       krs[indexKr].progress = progress;
       temp[index].krs= krs;
+      return temp;
+    }
+    case 'addAlign' :{
+      let temp = [...state];
+      let {index, content} = action.payload;
+      temp[index].alignings.unshift(content);
       return temp;
     }
     default: return state;

@@ -1,7 +1,7 @@
-import React, { useState, useReducer, useEffect } from 'react';
-import { Row, Col, Input, Button, Progress } from 'antd';
+import React, { useState, useReducer, useEffect, useCallback } from 'react';
+import { Row, Col, Input, Button, Progress, Empty } from 'antd';
 import * as style from './index.module.scss';
-import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloseOutlined, PlusOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import DragableKRs from './dragableKRs';
 import { Fragment } from 'react';
 
@@ -41,7 +41,25 @@ const testDuiqi = [
       name: '李四第三个OKR',
       createdTime: '2021-05-24',
     }]
-  }
+  },
+  {
+    name: '张无忌',
+    dept: '市场部',
+    userId: 'user003',
+    okrs: [{
+      id: '0000031',
+      name: '张无忌第一个OKR，长字符串测试，长字符串测试，长字符串测试，长字符串测试',
+      createdTime: '2021-05-21',
+    },{
+      id: '0000032',
+      name: '张无忌第二个OKR',
+      createdTime: '2021-05-22',
+    },{
+      id: '0000033',
+      name: '张无忌第三个OKR',
+      createdTime: '2021-05-24',
+    }]
+  },
 ]
 
 const reducer = (state, action)=>{
@@ -118,6 +136,17 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
     <div className={!!inEdit?style.okrItem_containerEdit:style.okrItem_container}>
       <Row className={style.okrItem_addAlign}>
         <Col span={1}></Col>
+        {data.alignings && data.alignings.length>0 &&
+          <Col>
+          {data.alignings.map(obj=>{
+            return(
+              <Fragment key={obj.oId}>
+                <AlignItem data={obj}/>
+              </Fragment>
+            )
+          })}
+          </Col>
+        }
         <Col span={2} style={{position:'relative'}}>
           <div className={!!showMateOkrModal?style.okrItem_addAlign_btnAct:style.okrItem_addAlign_btn} 
           onClick={()=>setShowMateOkrModal(true)}>
@@ -125,7 +154,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
             <span>添加对齐</span>
           </div>
           {!!showMateOkrModal &&
-          <MateOkrModal onClose={()=>setShowMateOkrModal(false)}/>}
+          <MateOkrModal index={index} dispatch={dispatch} alignings={data.alignings.map(obj=>obj.oId)} onClose={()=>setShowMateOkrModal(false)}/>}
         </Col>
       </Row>
       <div className={style.okrItem_keyCtn}>
@@ -211,24 +240,92 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
   )
 })
 
-const MateOkrModal = React.memo(({onClose})=>{
-  const [searchVal, setSearchVal] = useState('');
+const throttle = (fn, wait)=>{
+  let prev = new Date();
+  let first = true;
+  return function(){
+    let now = new Date();
+    let context = this;
+    let args = arguments;
+    if(now-prev>wait){
+      if(first){
+        first = false;
+        prev = now;
+        return;
+      }
+      fn.apply(context, args);
+      prev = now;
+    }
+  }
+}
+
+const AlignItem = React.memo(({data})=>{
+  const [showMore, setShowMore] = useState(false)
   return(
-    <div className={style.okrItem_addAlign_modal}>
-      <Input bordered={false} placeholder='输入姓名搜索' className={style.okrItem_addAlign_modal_input}
-        value={searchVal} onChange={e=>setSearchVal(e.target.value)}/>
-      {testDuiqi.map((obj)=>{
-        return(
-          <Fragment key={obj.userId}>
-            <MateOkrItem data={obj}/>
-          </Fragment>
-        )
-      })}
+    <div className={style.okrItem_addAlign_alignItem} onMouseLeave={()=>setShowMore(false)}
+    onMouseEnter={()=>setShowMore(true)}>
+      <span>{data.name}</span>
+      <span className={style.okrItem_addAlign_alignItem_remove}><CloseOutlined/></span>
+      {showMore &&
+      <Row className={style.okrItem_addAlign_alignItem_more} justify='space-between'>
+        <Col><div className={style.okrItem_addAlign_alignItem_more_O}>O</div></Col>
+        <Col span={17}>{data.oName}</Col>
+        <Col span={5} style={{color:data.status==3?'red':(data.status==2?'orange':'#1890ff')}}>
+          {`${data.status==3?'已延期':(data.status==2?'有风险':'正常')} ${data.progress}%`}
+        </Col>
+      </Row>
+      }
     </div>
   )
 })
 
-const MateOkrItem = React.memo(({data})=>{
+const MateOkrModal = React.memo(({index, dispatch, alignings, onClose})=>{
+  const [searchVal, setSearchVal] = useState('');
+  const [searchResult, setSearchResult] = useState([]);
+
+  const handleSearch = (name)=>{
+    let result = !!name?testDuiqi.filter(obj=>obj.name.indexOf(name)>-1):[];
+    setSearchResult(result)
+  }
+  const memorizedSearch = useCallback(throttle((name)=>handleSearch(name), 300),[])
+
+  return(
+    <div className={style.okrItem_addAlign_modal}>
+      <div className={style.okrItem_addAlign_modal_close} onClick={()=>onClose()}>
+        <CloseOutlined />
+      </div>
+      <Input bordered={false} placeholder='输入姓名搜索' className={style.okrItem_addAlign_modal_input}
+        value={searchVal} 
+        onChange={e=>{memorizedSearch(e.target.value);setSearchVal(e.target.value)}}/>
+      <div className={style.okrItem_addAlign_modal_maincontent}>
+        {searchResult.length > 0 ? searchResult.map((obj) => {
+          return (
+            <Fragment key={obj.userId}>
+              <MateOkrItem mainIndex={index} dispatch={dispatch} data={obj} selectedIds={alignings}/>
+            </Fragment>
+          )
+        }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>}
+      </div>
+    </div>
+  )
+})
+
+const MateOkrItem = React.memo(({mainIndex, dispatch, data, selectedIds})=>{
+  const [showConfirm, setShowConfirm] = useState(null);
+
+  const handleSelect = (obj)=>{
+    if(selectedIds.indexOf(obj.id)>-1){
+      return;
+    }else{
+      setShowConfirm(obj);
+    }
+  }
+
+  const selectConfirm = useCallback(()=>{
+    dispatch({type:'addAlign', payload:{index:mainIndex,content:{name:data.name, userId:data.userId, 
+      oName:showConfirm.name, oId:showConfirm.id, progress:10}}})
+    setShowConfirm('')
+  },[showConfirm])
   return(
     <Fragment>
       <Row className={style.okrItem_addAlign_modal_nameRow}>
@@ -239,9 +336,23 @@ const MateOkrItem = React.memo(({data})=>{
       {data.okrs.map((obj, index)=>{
         return(
           <Row className={style.okrItem_addAlign_modal_okrRow}>
-            <Col span={2}></Col>
+            <Col span={2} className={style.okrItem_addAlign_modal_okrRow_selected}>
+              {selectedIds.indexOf(obj.id)>-1 && <CheckCircleOutlined />}
+            </Col>
             <Col span={2} className={style.okrItem_addAlign_modal_oIndex}>{`O${index+1}`}</Col>
-            <Col span={18} className={style.okrItem_addAlign_modal_content}>{obj.name}</Col>
+            <Col span={18} className={style.okrItem_addAlign_modal_content}>
+              <div style={{cursor:'pointer'}} onClick={()=>handleSelect({id:obj.id, name:obj.name})}>{obj.name}</div>
+            </Col>
+            {showConfirm&&showConfirm.id==obj.id&&<div className={style.okrItem_addAlign_modal_confirm}>
+              <Row>
+                <Col span={8}>
+                  <Button size='small' type='primary' onClick={()=>selectConfirm()}>添加</Button>
+                </Col>
+                <Col span={8}>
+                  <Button size='small' onClick={()=>setShowConfirm(null)}>取消</Button>
+                </Col>
+              </Row>
+            </div>}
           </Row>
         )
       })}

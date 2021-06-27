@@ -7,6 +7,20 @@ import { Fragment } from 'react';
 
 const testDuiqi = [
   {
+    name: '李飞',
+    dept: '研发部',
+    userId: 'user004',
+    okrs: [{
+      id: '0000041',
+      name: '李飞第一个OKR，长字符串测试，长字符串测试，长字符串测试，长字符串测试',
+      createdTime: '2021-05-21',
+    },{
+      id: '0000042',
+      name: '李飞第二个OKR',
+      createdTime: '2021-05-21',
+    }]
+  },
+  {
     name: '张三',
     dept: '研发部',
     userId: 'user001',
@@ -44,7 +58,7 @@ const testDuiqi = [
   },
   {
     name: '张无忌',
-    dept: '市场部',
+    dept: '研发部',
     userId: 'user003',
     okrs: [{
       id: '0000031',
@@ -112,7 +126,7 @@ const reducer = (state, action)=>{
   }
 }
 
-export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inEditHigh})=>{
+export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inEditHigh, isOwner})=>{
   const [oname, setOname] = useState(data.name);
   const [krs, dispatchKr] = useReducer(reducer, data.krs);
   const [overallStatus, setOverallStatus] = useState({status:1, progress:0});
@@ -141,13 +155,13 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
           {data.alignings.map(obj=>{
             return(
               <Fragment key={obj.oId}>
-                <AlignItem data={obj}/>
+                <AlignItem data={obj} isOwner={isOwner}/>
               </Fragment>
             )
           })}
           </Col>
         }
-        <Col span={2} style={{position:'relative'}}>
+        {!!isOwner &&<Col span={2} style={{position:'relative'}}>
           <div className={!!showMateOkrModal?style.okrItem_addAlign_btnAct:style.okrItem_addAlign_btn} 
           onClick={()=>setShowMateOkrModal(true)}>
             <span><PlusOutlined /></span>
@@ -155,7 +169,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
           </div>
           {!!showMateOkrModal &&
           <MateOkrModal index={index} dispatch={dispatch} alignings={data.alignings.map(obj=>obj.oId)} onClose={()=>setShowMateOkrModal(false)}/>}
-        </Col>
+        </Col>}
       </Row>
       <div className={style.okrItem_keyCtn}>
         <Row className={style.okrItem_keyCtn_keyRow}>
@@ -193,7 +207,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       <Row>
         <Col span={1}></Col>
         <Col span={23}>
-          <DragableKRs dispatch={obj=>dispatch({type:'logProgress',payload:{index:index,...obj}})} 
+          <DragableKRs isOwner={isOwner} dispatch={obj=>dispatch({type:'logProgress',payload:{index:index,...obj}})} 
           inEdit={inEdit} data={krs} dispatchKr={(obj)=>dispatchKr(obj)}/>
         </Col>
       </Row>
@@ -230,11 +244,12 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
         </Col>
         <Col span={24}></Col>
       </Row>:
-      <Row className={style.okrItem_opsCtn}>
+      <Fragment>{!!isOwner &&<Row className={style.okrItem_opsCtn}>
         <Col span={2}>
           <Button disabled={inEditHigh} type="primary" onClick={()=>{dispatch({type:'goEdit',payload:{index}});goEdit()}}>编辑</Button>
         </Col>
-      </Row>
+      </Row>}
+      </Fragment>
       }
     </div>
   )
@@ -259,13 +274,13 @@ const throttle = (fn, wait)=>{
   }
 }
 
-const AlignItem = React.memo(({data})=>{
+const AlignItem = React.memo(({data, isOwner})=>{
   const [showMore, setShowMore] = useState(false)
   return(
     <div className={style.okrItem_addAlign_alignItem} onMouseLeave={()=>setShowMore(false)}
     onMouseEnter={()=>setShowMore(true)}>
       <span>{data.name}</span>
-      <span className={style.okrItem_addAlign_alignItem_remove}><CloseOutlined/></span>
+      {!!isOwner && <span className={style.okrItem_addAlign_alignItem_remove}><CloseOutlined/></span>}
       {showMore &&
       <Row className={style.okrItem_addAlign_alignItem_more} justify='space-between'>
         <Col><div className={style.okrItem_addAlign_alignItem_more_O}>O</div></Col>

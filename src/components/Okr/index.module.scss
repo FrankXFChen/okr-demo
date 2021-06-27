@@ -359,7 +359,8 @@
     box-shadow: rgb(197, 196, 196) 0 0 1px 1px;
     padding:5px 10px;
     width: 120px;
-    height: 100px;
+    min-height: 70px;
+    height: fit-content;
     position: absolute;
     top:0px;
     left:38px;

@@ -39,7 +39,7 @@ const getListStyle = () => ({
   width: '100%'
 });
  
-export default React.memo(({dispatch, data, inEdit, dispatchKr})=>{
+export default React.memo(({dispatch, data, inEdit, dispatchKr, isOwner})=>{
   //const [innerKrs, setInnerKrs] = useState(data);
 
   const onDragEnd = useCallback((result) => {
@@ -130,7 +130,7 @@ export default React.memo(({dispatch, data, inEdit, dispatchKr})=>{
                       {/* <Progress type="circle" trailColor='#dadada8c' status={item.status==3?"exception":'normal'} format={() => }
                         percent={item.progress} width={30} strokeWidth={10} /> */}
                         <MyProgress dispatchKrStatus={(obj)=>dispatch({krPayload:{indexKr:index, ...obj}})}
-                         status={item.status} value={item.progress} krId={item.id}/>
+                         status={item.status} value={item.progress} krId={item.id} isOwner={isOwner}/>
                     </Col>
                     <Col span={8}>10.0</Col>
                     <Col span={8}>
@@ -150,7 +150,7 @@ export default React.memo(({dispatch, data, inEdit, dispatchKr})=>{
 
 })
 const statusMap = {1:'正常', 2:'有风险', 3:'已延期'};
-const MyProgress = React.memo(({dispatchKrStatus, status, value, krId})=>{
+const MyProgress = React.memo(({dispatchKrStatus, status, value, krId, isOwner})=>{
   //let myFormat = (val)=>val+`%`;
   let myFormat = ()=>'';
   let myColor = '';
@@ -184,10 +184,10 @@ const MyProgress = React.memo(({dispatchKrStatus, status, value, krId})=>{
           <span>当前进度：</span>
           <span>{`${value}%`}</span>
         </div>
-        <div style={{textAlign:'center'}}>
+        {!!isOwner&&<div style={{textAlign:'center'}}>
           <Button type='primary' size='small' className={style.myProgress_detailCtn_btn}
             onClick={()=>{setShowUpdateModal(true);setShowDetail(false)}}>更新</Button>
-        </div>
+        </div>}
       </div>}
     </div>
     {!!showUpdateModal &&

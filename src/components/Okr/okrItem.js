@@ -1,9 +1,11 @@
 import React, { useState, useReducer, useEffect, useCallback } from 'react';
-import { Row, Col, Input, Button, Progress, Empty } from 'antd';
+import { Row, Col, Input, Button, Progress, Empty, Modal } from 'antd';
 import * as style from './index.module.scss';
-import { CloseOutlined, PlusOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { CloseOutlined, PlusOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import DragableKRs from './dragableKRs';
 import { Fragment } from 'react';
+
+const { confirm } = Modal;
 
 const testDuiqi = [
   {
@@ -126,7 +128,7 @@ const reducer = (state, action)=>{
   }
 }
 
-export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inEditHigh, isOwner})=>{
+export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inEditHigh, isOwner, isUnder})=>{
   const [oname, setOname] = useState(data.name);
   const [krs, dispatchKr] = useReducer(reducer, data.krs);
   const [overallStatus, setOverallStatus] = useState({status:1, progress:0});
@@ -155,7 +157,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
           {data.alignings.map(obj=>{
             return(
               <Fragment key={obj.oId}>
-                <AlignItem data={obj} isOwner={isOwner}/>
+                <AlignItem data={obj} isOwner={isOwner} removeAlign={(oId)=>dispatch({type:'removeAlign', payload:{index:index,oId}})}/>
               </Fragment>
             )
           })}
@@ -207,7 +209,7 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       <Row>
         <Col span={1}></Col>
         <Col span={23}>
-          <DragableKRs isOwner={isOwner} dispatch={obj=>dispatch({type:'logProgress',payload:{index:index,...obj}})} 
+          <DragableKRs isOwner={isOwner} isUnder={isUnder} dispatch={obj=>dispatch({type:'logProgress',payload:{index:index,...obj}})} 
           inEdit={inEdit} data={krs} dispatchKr={(obj)=>dispatchKr(obj)}/>
         </Col>
       </Row>
@@ -222,19 +224,19 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
       </Row>}
       {!!inEdit?<Row className={style.okrItem_opsCtn}>
         <Col span={2}>
-          <Button type="primary" onClick={()=>{
+          <Button type="primary" size="small" onClick={()=>{
             dispatch({type:'publish',payload:{index:index,name:oname, krs:krs}});
             quitEdit()}
             }>{!!data.newOne?'发布':'确定'}</Button>
         </Col>
         <Col span={2}>
-          {!!data.newOne? <Button onClick={()=>{
+          {!!data.newOne? <Button size="small" onClick={()=>{
             dispatch({type:'remove', payload:{index}});
             quitEdit();
           }}>
             取消
           </Button> :
-          <Button onClick={()=>{
+          <Button size="small" onClick={()=>{
             dispatch({type:'quit', payload:{index}});
             quitEdit();
           }}>
@@ -244,12 +246,17 @@ export default React.memo(({index, data, dispatch, quitEdit, goEdit, inEdit, inE
         </Col>
         <Col span={24}></Col>
       </Row>:
-      <Fragment>{!!isOwner &&<Row className={style.okrItem_opsCtn}>
-        <Col span={2}>
-          <Button disabled={inEditHigh} type="primary" onClick={()=>{dispatch({type:'goEdit',payload:{index}});goEdit()}}>编辑</Button>
-        </Col>
-      </Row>}
-      </Fragment>
+      // <Fragment>{!!isOwner &&<Row className={style.okrItem_opsCtn}>
+      //   <Col span={2}>
+      //     <Button disabled={inEditHigh} type="primary" onClick={()=>{dispatch({type:'goEdit',payload:{index}});goEdit()}}>编辑</Button>
+      //   </Col>
+      // </Row>}
+      // </Fragment>
+      <Row className={style.okrItem_opsCtn}>
+        {!!isOwner && <Col span={2}>
+          <Button disabled={inEditHigh} type="primary" size="small" onClick={()=>{dispatch({type:'goEdit',payload:{index}});goEdit()}}>编辑</Button>
+        </Col>}
+      </Row>
       }
     </div>
   )
@@ -274,13 +281,31 @@ const throttle = (fn, wait)=>{
   }
 }
 
-const AlignItem = React.memo(({data, isOwner})=>{
-  const [showMore, setShowMore] = useState(false)
+const AlignItem = React.memo(({data, isOwner, removeAlign})=>{
+  const [showMore, setShowMore] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    confirm({
+      title: `确认移除对齐${data.name}吗?`,
+      icon: <ExclamationCircleOutlined />,
+      okText: '确认',
+      // okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        confirmDelete(data.oId)
+      }
+    });
+  },[data])
+
+  const confirmDelete = (oId)=>{
+    removeAlign(oId)
+  }
+
   return(
     <div className={style.okrItem_addAlign_alignItem} onMouseLeave={()=>setShowMore(false)}
     onMouseEnter={()=>setShowMore(true)}>
       <span>{data.name}</span>
-      {!!isOwner && <span className={style.okrItem_addAlign_alignItem_remove}><CloseOutlined/></span>}
+      {!!isOwner && <span className={style.okrItem_addAlign_alignItem_remove} onClick={handleDelete}><CloseOutlined/></span>}
       {showMore &&
       <Row className={style.okrItem_addAlign_alignItem_more} justify='space-between'>
         <Col><div className={style.okrItem_addAlign_alignItem_more_O}>O</div></Col>

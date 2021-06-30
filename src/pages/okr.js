@@ -80,7 +80,8 @@ export default React.memo(({})=>{
           </Menu>
         </Sider>}
         <Content>
-          {selectUserId && <MyOkrs ownerId={selectUserId} isOwner={selectUserId===currentUser.userId}/>}
+          {selectUserId && <MyOkrs ownerId={selectUserId} isOwner={selectUserId===currentUser.userId} 
+          isUnder={workMateData.underLevel.map(obj=>obj.userId).indexOf(selectUserId)>-1}/>}
         </Content>
       </Layout>
     </MyLayout>

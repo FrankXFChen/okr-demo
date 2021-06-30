@@ -146,11 +146,18 @@ const reducer = (state, action)=>{
       temp[index].alignings.unshift(content);
       return temp;
     }
+    case 'removeAlign':{
+      let temp = [...state];
+      let {index, oId} = action.payload;
+      let aIndex = temp[index].alignings.findIndex(obj=>obj.oId==oId);
+      temp[index].alignings.splice(aIndex,1);
+      return temp;
+    }
     default: return state;
   }
 }
 
-export default React.memo(({ownerId, isOwner})=>{
+export default React.memo(({ownerId, isOwner, isUnder})=>{
   const [myOkrs, dispatch] = useReducer(reducer, []);
   const [inEdit, setInEdit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -183,7 +190,7 @@ export default React.memo(({ownerId, isOwner})=>{
           {myOkrs.length > 0 ?
             myOkrs.map((obj, index) => {
               return <OkrItem dispatch={dispatch} quitEdit={() => setInEdit(false)} goEdit={() => setInEdit(true)}
-                index={index} data={obj} inEdit={obj.inEdit} inEditHigh={inEdit} isOwner={isOwner}/>
+                index={index} data={obj} inEdit={obj.inEdit} inEditHigh={inEdit} isOwner={isOwner} isUnder={isUnder}/>
             }) :
             <Empty style={{ marginTop: '10vh' }} image={Empty.PRESENTED_IMAGE_DEFAULT} description='暂无OKR' />
           }

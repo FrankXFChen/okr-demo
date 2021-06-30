@@ -39,7 +39,7 @@ const getListStyle = () => ({
   width: '100%'
 });
  
-export default React.memo(({dispatch, data, inEdit, dispatchKr, isOwner})=>{
+export default React.memo(({dispatch, data, inEdit, dispatchKr, isOwner, isUnder})=>{
   //const [innerKrs, setInnerKrs] = useState(data);
 
   const onDragEnd = useCallback((result) => {
@@ -132,7 +132,8 @@ export default React.memo(({dispatch, data, inEdit, dispatchKr, isOwner})=>{
                         <MyProgress dispatchKrStatus={(obj)=>dispatch({krPayload:{indexKr:index, ...obj}})}
                          status={item.status} value={item.progress} krId={item.id} isOwner={isOwner}/>
                     </Col>
-                    <Col span={8}>10.0</Col>
+                    {isUnder ?<Col span={8}>评分</Col>:
+                    <Col span={8}>10.0</Col>}
                     <Col span={8}>
                       <Input bordered={false} className={style.krItem_weightCtn_inputDis}
                         readOnly value={`${item.weight}%`} />

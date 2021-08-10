@@ -11,6 +11,8 @@ export default function HTML(props) {
           name="viewport"
           content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
         />
+        <script src="http://xtjsuser.shdata.com:9080/auth/js/keycloak.js"></script>
+        <script src="./keycloakAdp.js"></script>
         {props.headComponents}
       </head>
       <body {...props.bodyAttributes}>
